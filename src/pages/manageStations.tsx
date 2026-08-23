@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { StationService } from '../services/station.service'
 import { useForm } from 'antd/es/form/Form'
 import { AuthContext } from '../contexts/auth.context'
+import EditStationContent from '../components/editStationContent'
 
 const ManageStations = () => {
 
@@ -12,30 +13,35 @@ const ManageStations = () => {
     const { showAlert } = useContext(AuthContext)
     const [isFormSubmitting, setIsFormSubmitting] = useState(false);
     const [stations, setStations] = useState<any[]>([]);
+    const [selectedStation, setSelectedStation] = useState();
+
 
     const stationService = new StationService();
 
-    const dummyData = [
-        {
-            key: '1',
-            stationNo: '001',
-            stationName: 'Central Police Station',
-            stationAddress: '123 Main St, Cityville',
-        },
-        {
-            key: '2',
-            stationNo: '002',
-            stationName: 'North Police Station',
-            stationAddress: '456 North Ave, Cityville',
-        },
-        {
-            key: '3',
-            stationNo: '003',
-            stationName: 'East Police Station',
-            stationAddress: '789 East Blvd, Cityville',
-        },
-    ]
+    const handleStationEditFinish = (data) => {
+        stationService.updateStation(selectedStation?.id, data)
+            .then(data => {
+                showAlert.success('Station Details Updated Successfully')
+            })
+            .catch((error) => {
+                showAlert.error(error.message)
+            })
+            .finally(() => {
+                fetchAllStations();
+                Modal.destroyAll();
+            }
+            )
+    }
 
+    const handleStationEdit = (stationId: string, stationData: any) => {
+        Modal.confirm({
+            title: 'Edit Station Details',
+            content: <EditStationContent onFinish={handleStationEditFinish} selectedStation={stationData} />,
+            icon: null,
+            centered: true,
+            footer: null,
+        })
+    }
     const columns = [
         {
             title: 'Station Code',
@@ -58,7 +64,7 @@ const ManageStations = () => {
             render: (value: any, record: any) => (
                 <Flex gap={10} justify='center'>
                     <Tooltip title="Edit">
-                        <Button size='small' shape='circle' type='text'><FontAwesomeIcon icon={faPen} /></Button>
+                        <Button size='small' onClick={() => { setSelectedStation(record); handleStationEdit(record.id, record) }} shape='circle' type='text'><FontAwesomeIcon icon={faPen} /></Button>
                     </Tooltip>
                     <Tooltip title="Delete">
                         <Button onClick={() => handleStationDelete(record?.id)} size='small' shape='circle' type='text' danger><FontAwesomeIcon icon={faTrash} /></Button>
@@ -69,6 +75,7 @@ const ManageStations = () => {
     ];
 
     const handleStationDelete = (stationId: string) => {
+
         Modal.confirm({
             title: 'Confirm Deletion',
             content: 'Are you sure you want to delete this station?',

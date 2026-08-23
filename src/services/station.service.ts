@@ -34,4 +34,18 @@ export class StationService {
 
     return res.data;
   }
+
+  async updateStation(id: string, payload: {
+    code: string;
+    name: string;
+    address: string;
+  }) {
+    const res = await api
+      .put(`${this.CONTROLLER}/update/${id}`, payload)
+      .catch((error) => {
+        throw error;
+      });
+
+    return res.data;
+  }
 }

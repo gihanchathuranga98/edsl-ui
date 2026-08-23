@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     FileOutlined,
     TeamOutlined,
@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faBuildingColumns, faCrosshairs, faDashboard, faDatabase, faFilePdf, faGavel, faKey, faLock, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faCashApp } from '@fortawesome/free-brands-svg-icons';
 import { useNavigate } from 'react-router';
+import { AuthContext } from '../contexts/auth.context';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -30,7 +31,7 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem("Dashboard", '1', <FontAwesomeIcon icon={faDashboard} />),
+    // getItem("Dashboard", '1', <FontAwesomeIcon icon={faDashboard} />),
     getItem("Manage TCR", 'manage-tcr', <FontAwesomeIcon icon={faGavel} />),
     getItem("Create TCR", 'create-tcr', <FontAwesomeIcon icon={faTrophy} />),
     getItem("Reports", 'reports', <FontAwesomeIcon icon={faFilePdf} />),
@@ -51,6 +52,8 @@ const Sidenav = ({ children }: { children?: React.ReactNode }) => {
     const navigate = useNavigate();
 
     const [collapsed, setCollapsed] = useState(false);
+
+    const {user} = useContext(AuthContext);
     // sider width defaults in antd: width = 200, collapsedWidth = 80
     const siderWidth = collapsed ? 80 : 250;
     const {
@@ -65,6 +68,11 @@ const Sidenav = ({ children }: { children?: React.ReactNode }) => {
         const path = window.location.pathname;
         // remove leading slash and return as array
         return [path.slice(1)];
+    }
+
+    const showFirstTwoInitials = (name: string) => {
+        const names = name.split(' ');
+        return names[0].charAt(0) + names[1].charAt(0);
     }
 
     return (
@@ -97,7 +105,7 @@ const Sidenav = ({ children }: { children?: React.ReactNode }) => {
                         paddingRight: 8,
                     }}
                 >
-                    <Avatar style={{ border: 'solid 3px #fff', backgroundColor: 'grey'}} size={100}>SU</Avatar>
+                    <Avatar style={{ border: 'solid 3px #fff', backgroundColor: 'grey'}} size={100}>{showFirstTwoInitials(user.name)}</Avatar>
                     {/* <img
                         style={{
                             borderRadius: 100,
@@ -109,7 +117,7 @@ const Sidenav = ({ children }: { children?: React.ReactNode }) => {
                         src="https://www.loremfaces.net/96/id/1.jpg"
                         alt="Logo"
                     /> */}
-                    <h5 style={{ color: '#fff', margin: 0 }}>System User Name</h5>
+                    <h5 style={{ color: '#fff', margin: 0 }}>{user.name}</h5>
                 </div>
                 <Menu theme="dark" defaultSelectedKeys={getCurrentPath()} onClick={handleNavClick} mode="inline" items={items} />
             </Sider>

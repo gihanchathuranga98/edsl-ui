@@ -1,33 +1,14 @@
-import { faFileCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faFileCircleCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Table, Tag } from 'antd';
-import React from 'react'
+import { Button, Flex, Table, Tag } from 'antd';
+import React, { useContext } from 'react'
+import { useNavigate } from 'react-router';
+import { AuthContext } from '../contexts/auth.context';
 
-const PendingTcr = () => {
+const PendingTcr = ({ pendingItems, handleTcrDelete }) => {
 
-    const dummyData = [
-        {
-            key: '1',
-            tcrNo: 'TCR-001',
-            incidentDate: '2024-06-01',
-            stationName: 'Central Police Station',
-            status: 'Pending Approval'
-        },
-        {
-            key: '2',
-            tcrNo: 'TCR-002',
-            incidentDate: '2024-06-02',
-            stationName: 'North Police Station',
-            status: 'Pending Approval'
-        },
-        {
-            key: '3',
-            tcrNo: 'TCR-003',
-            incidentDate: '2024-06-03',
-            stationName: 'East Police Station',
-            status: 'Pending Approval'
-        },
-    ];
+    const navigate = useNavigate();
+    const { permissions } = useContext(AuthContext);
 
     const columns = [
         {
@@ -39,6 +20,9 @@ const PendingTcr = () => {
             title: 'Date',
             dataIndex: 'incidentDate',
             key: 'incidentDate',
+            render: (value) => {
+                return new Date(value).toLocaleDateString();
+            }
         },
         {
             title: 'Station Name',
@@ -51,26 +35,29 @@ const PendingTcr = () => {
             key: 'status',
             render: (value) => {
                 return (
-                    <Tag variant='solid' color='orange'>{value}</Tag>
+                    <Tag variant='solid' color='orange'>PENDING</Tag>
                 )
             }
         },
         {
             title: 'Action',
             key: 'action',
-             render: () => {
+            render: (value, record) => {
                 return (
-                    <Button type='primary'>Review TCR <FontAwesomeIcon icon={faFileCircleCheck}/></Button>
+                    <Flex gap={5}>
+                        <Button disabled={!permissions.includes('tcr:view') } type='primary' onClick={() => { navigate(`/review/${record.id}`) }}>Review TCR <FontAwesomeIcon icon={faFileCircleCheck} /></Button>
+                        <Button onClick={() => {handleTcrDelete(record.id)}} danger type='primary'><FontAwesomeIcon icon={faTrash}/>Delete TCR</Button>
+                    </Flex>
                 )
-             }
+            }
         }
     ]
 
-  return (
-    <>
-        <Table columns={columns} dataSource={dummyData} />
-    </>
-  )
+    return (
+        <>
+            <Table columns={columns} dataSource={pendingItems} />
+        </>
+    )
 }
 
 export default PendingTcr;

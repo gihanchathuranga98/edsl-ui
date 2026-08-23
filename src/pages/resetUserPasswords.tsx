@@ -1,14 +1,18 @@
 import { faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, Modal, Table } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { Button, Input, Modal, Table } from 'antd'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { UserService } from '../services/user.service'
+import { AuthContext } from '../contexts/auth.context'
 
 const ResetUserPasswords = () => {
 
     const [resetReq, setResetReq] = useState<any[]>([]);
+    const [newPwd, setNewPwd] = useState();
 
     const userService = new UserService();
+
+    const { showAlert } = useContext(AuthContext);
 
     const columns: any[] = [
         {
@@ -34,9 +38,9 @@ const ResetUserPasswords = () => {
             dataIndex: 'actions',
             key: 'actions',
             width: 150,
-            render: () => {
+            render: (val, rec) => {
                 return (
-                    <Button onClick={handleReset} type='primary'><FontAwesomeIcon icon={faArrowRotateLeft} />Reset</Button>
+                    <Button onClick={() => { handleReset(rec?.requestId) }} type='primary'><FontAwesomeIcon icon={faArrowRotateLeft} />Reset</Button>
                 )
             }
         }
@@ -54,14 +58,27 @@ const ResetUserPasswords = () => {
         fetchAllPwRecoveryReq();
     }, [])
 
-    const handleReset = () => {
+    const handleReset = (reqId: string) => {
         Modal.confirm({
             title: 'Confirm Password Reset',
-            content: 'Are you sure you want to reset the password for this user? This action cannot be undone.',
+            content: (<>
+                Are you sure you want to reset the password for this user? This action cannot be undone.
+                <Input style={{ width: '100%', marginTop: 5 }} onChange={(e) => { setNewPwd(e.target.value) }} placeholder='Enter new password' type='password' />
+            </>),
             okText: 'Yes, Reset',
             cancelText: 'No, Cancel',
             onOk: () => {
-                // Handle password reset logic here
+                if (newPwd === null || newPwd === '') {
+                    showAlert('New password is required')
+                    return;
+                }
+                userService.resetOtherUserPwd(reqId, newPwd)
+                    .then(data => {
+                        fetchAllPwRecoveryReq();
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
             }
         })
     }

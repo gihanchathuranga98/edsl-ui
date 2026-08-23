@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Flex, Form, Input, Row, Select, Table, Tooltip } from 'antd'
+import { Button, Col, Divider, Flex, Form, Input, Modal, Row, Select, Table, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import React, { useContext, useEffect, useState } from 'react'
 import Sidenav from '../components/sidenav';
@@ -19,6 +19,7 @@ const ManageOfficers = () => {
     const [designations, setDesignations] = useState<any[]>([]);
     const [stations, setStations] = useState<any[]>([]);
     const [officers, setOfficers] = useState<any[]>([]);
+    const [selectedOfficer, setSelectedOfficer] = useState<string>();
 
     const userService = new UserService();
     const stationService = new StationService();
@@ -67,19 +68,23 @@ const ManageOfficers = () => {
         {
             title: 'Action',
             key: 'action',
-            render: () => (
-                <Flex gap={10}>
-                    <Tooltip title="Edit">
-                        <Button size='small' shape='circle' type='text'><FontAwesomeIcon icon={faPen} /></Button>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                        <Button size='small' shape='circle' type='text' danger><FontAwesomeIcon icon={faTrash} /></Button>
-                    </Tooltip>
-                    <Tooltip title="Assign Station">
-                        <Button onClick={() => { setOpenAssignStation(true) }} size='small' shape='circle' type='text' style={{ color: 'blue' }}><FontAwesomeIcon icon={faBuildingCircleArrowRight} /></Button>
-                    </Tooltip>
-                </Flex>
-            ),
+            render: (val, record) => {
+                console.log('record ===>', record);
+                
+                return (
+                    <Flex gap={10}>
+                        {/* <Tooltip title="Edit">
+                            <Button size='small' shape='circle' type='text'><FontAwesomeIcon icon={faPen} /></Button>
+                        </Tooltip> */}
+                        <Tooltip title="Delete">
+                            <Button size='small' shape='circle' type='text' danger><FontAwesomeIcon icon={faTrash} /></Button>
+                        </Tooltip>
+                        <Tooltip title="Assign Station">
+                            <Button onClick={() => { setSelectedOfficer(record?.id); setOpenAssignStation(true) }} size='small' shape='circle' type='text' style={{ color: 'blue' }}><FontAwesomeIcon icon={faBuildingCircleArrowRight} /></Button>
+                        </Tooltip>
+                    </Flex>
+                )
+            },
         }
 
     ]
@@ -97,7 +102,7 @@ const ManageOfficers = () => {
     }, [])
 
     const handleFormSubmit = (data: any) => {
-        userService.createOfficer({ code: data.officerNumber, name: data.officerName, stationId: data.station, designationId: data.designation })
+        userService.createOfficer({ code: data.officerNumber, name: data.officerName, stationId: data?.station, designationId: data.designation })
             .then(data => {
                 form.resetFields();
                 showAlert.success('New officer has been created successfully')
@@ -109,7 +114,7 @@ const ManageOfficers = () => {
 
     return (
         <>
-            <AssignStation onClose={() => { setOpenAssignStation(false) }} open={openAssignStation} />
+            <AssignStation onStationChange={() => {Modal.destroyAll(); showAlert.success('Station has been changed successfully'); fetchAllOfficers();}} selectedOfficer={selectedOfficer} onClose={() => { setOpenAssignStation(false) }} open={openAssignStation} />
             <Form onFinish={handleFormSubmit} form={form} layout='vertical'>
                 <Row gutter={[15, 15]}>
                     <Col span={6}>
@@ -139,7 +144,7 @@ const ManageOfficers = () => {
                 </Flex>
             </Form>
             <Divider />
-            <Table columns={columns} dataSource={officers.map(o => ({ officerName: o.name, officerNumber: o.code, designation: o.designation?.designation, station: `${o.stations[0].station?.code} - ${o.stations[0].station?.name}` }))} />
+            <Table columns={columns} dataSource={officers.map(o => ({ id: o?.id, officerName: o?.name, officerNumber: o?.code, designation: o?.designation?.designation, station: `${o?.stations[0].station?.code} - ${o?.stations[0]?.station?.name}` }))} />
         </>
     )
 }

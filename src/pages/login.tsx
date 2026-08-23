@@ -4,7 +4,7 @@ import { faAward } from '@fortawesome/free-solid-svg-icons'
 import Password from 'antd/es/input/Password'
 import { useForm } from 'antd/es/form/Form'
 import { UserService } from '../services/user.service'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AuthContext } from '../contexts/auth.context'
 import { useNavigate } from 'react-router'
 
@@ -14,10 +14,12 @@ const Login = () => {
     const [emailForm] = useForm();
     const navigate = useNavigate();
     const { setUser, setPermissions, showAlert } = useContext(AuthContext);
+    const [isLoginLoading, setIsLoginLoading] = useState(false);
 
     const userServie = new UserService();
 
     const handleLogin = (data: { username: string, password: string }) => {
+        setIsLoginLoading(true)
         userServie.login(data.username, data.password)
             .then((data: any) => {
                 setUser({
@@ -26,11 +28,16 @@ const Login = () => {
                     permissions: data.permissions
                 });
                 setPermissions(data.permissions);
-                navigate('/manage-officers');
+                navigate('/manage-tcr');
             })
-            .catch(() => {
-                alert('error')
-            });
+            .catch((error) => {
+                showAlert.error(error.message)
+                console.log(error);
+                
+            })
+            .finally(() => {
+                setIsLoginLoading(false);
+            })
     }
 
     const handlePasswordRecovery = ({ email }: { email: string }) => {
@@ -76,7 +83,7 @@ const Login = () => {
                     <Flex vertical justify='center'>
                         <div style={{ borderRadius: 10, boxShadow: '0 4px 10px rgba(0,0,0,0.2)', marginTop: '20vh' }}>
                             <Row>
-                                <Col style={{ backgroundColor: '#57caf7', borderRadius: '10px 0 0 10px' }} span={12}>
+                                <Col style={{ backgroundColor: '#57caf7', borderRadius: '10px 0 0 10px', padding: 20, paddingTop: 40 }} span={12}>
                                     <Flex style={{ marginTop: 40, marginBottom: 40 }} vertical align='center' justify='center'>
                                         <FontAwesomeIcon size='8x' icon={faAward} />
                                         <h2 style={{ textAlign: 'center' }}>Technical Crime Reward Reporting System</h2>
@@ -95,7 +102,7 @@ const Login = () => {
                                             <Password placeholder='Password' />
                                         </Form.Item>
                                         <Flex justify='center'>
-                                            <Button htmlType='submit' style={{ width: 150 }} type='primary'>Login</Button>
+                                            <Button loading={isLoginLoading} htmlType='submit' style={{ width: 150 }} type='primary'>{!isLoginLoading ? "Login" : "Authenticating..."}</Button>
                                         </Flex>
                                     </Form>
                                     <Divider />

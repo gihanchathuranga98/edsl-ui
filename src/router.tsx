@@ -12,6 +12,8 @@ import ChangePassword from './pages/changePassword';
 import ResetUserPasswords from './pages/resetUserPasswords';
 import ManageDesignations from './pages/manageDesignations';
 import ProtectedRoute from './protectedRoute';
+import Reports from './pages/reports';
+import ReviewTcr from './pages/reviewTcr';
 
 const AppLayout = () => {
     return (
@@ -32,10 +34,13 @@ const Router = () => {
                     <Route path='/fund-breakdown' Component={FundBreakdown} />
                     <Route path='/manage-system-users' Component={ManageSystemUsers} />
                     <Route path='/create-tcr' Component={CreateTCR} />
+                    <Route path='/update-tcr/:tcr' Component={CreateTCR} />
                     <Route path='/manage-tcr' Component={ManageTCR} />
                     <Route path='/change-password' Component={ChangePassword} />
                     <Route path='/reset-passwords' Component={ResetUserPasswords} />
                     <Route path='/manage-designations' Component={ManageDesignations} />
+                    <Route path='/reports' Component={Reports} />
+                    <Route path='/review/:tcr' Component={ReviewTcr} />
                 </Route>
             </Routes>
         </>

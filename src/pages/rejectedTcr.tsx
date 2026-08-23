@@ -1,33 +1,15 @@
-import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Table, Tag } from 'antd'
+import { Button, Flex, Table, Tag } from 'antd'
 import React from 'react'
+import { useNavigate } from 'react-router';
 
-const RejectedTcr = () => {
+const RejectedTcr = ({ rejectedItems }) => {
 
-    const dummyData = [
-        {
-            key: '1',
-            tcrNo: 'TCR-001',
-            incidentDate: '2024-06-01',
-            stationName: 'Central Police Station',
-            status: 'Rejected'
-        },
-        {
-            key: '2',
-            tcrNo: 'TCR-002',
-            incidentDate: '2024-06-02',
-            stationName: 'North Police Station',
-            status: 'Rejected'
-        },
-        {
-            key: '3',
-            tcrNo: 'TCR-003',
-            incidentDate: '2024-06-03',
-            stationName: 'East Police Station',
-            status: 'Rejected'
-        },
-    ];
+    console.log('rejected items', rejectedItems);
+
+
+    const navigate = useNavigate();
 
     const columns = [
         {
@@ -39,6 +21,9 @@ const RejectedTcr = () => {
             title: 'Date',
             dataIndex: 'incidentDate',
             key: 'incidentDate',
+            render: (val => {
+                return new Date(val).toLocaleDateString();
+            })
         },
         {
             title: 'Station Name',
@@ -51,26 +36,29 @@ const RejectedTcr = () => {
             key: 'status',
             render: (value) => {
                 return (
-                    <Tag variant='solid' color='red'>{value}</Tag>
+                    <Tag variant='solid' color='red'>REJECTED</Tag>
                 )
-             }
+            }
         },
         {
             title: 'Action',
             key: 'action',
-             render: () => {
+            render: (val, record) => {
                 return (
-                    <Button type='primary'>View Details <FontAwesomeIcon icon={faEye}/></Button>
+                    <Flex gap={5}>
+                        <Button type='primary' onClick={() => { navigate(`/review/${record?.id}`) }}>View Details <FontAwesomeIcon icon={faEye} /></Button>
+                        <Button type='primary' onClick={() => { navigate(`/update-tcr/${record?.id}`) }}>Update TCR <FontAwesomeIcon icon={faPencil} /></Button>
+                    </Flex>
                 )
-             }
+            }
         }
-    ]; 
+    ];
 
-  return (
-    <>
-        <Table columns={columns} dataSource={dummyData}/>
-    </>
-  )
+    return (
+        <>
+            <Table columns={columns} dataSource={rejectedItems} />
+        </>
+    )
 }
 
 export default RejectedTcr

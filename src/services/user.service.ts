@@ -41,7 +41,7 @@ export class UserService {
     return res.data;
   }
 
-  async createNewSystemUser(payload: {name: string, password: string, email: string, permissions: Permission}) {
+  async createNewSystemUser(payload: {name: string, password: string, email: string, permissions: Permission[]}) {
     const res = await api
       .post(`${this.CONTROLLER}/create-user`, payload)
       .catch((error) => {
@@ -94,6 +94,34 @@ export class UserService {
     const res = await api.get(`${this.CONTROLLER}/officers`).catch((error) => {
       throw error;
     });
+    return res.data;
+  }
+
+  async assignStation(officerId: string, stationId: string) {
+    const res = await api
+      .post(`${this.CONTROLLER}/assign-station`, { officerId, stationId })
+      .catch((error) => {
+        throw error;
+      });
+    return res.data;
+  }
+
+  async changePassword(payload: { oldPassword: string; newPassword: string }) {
+    const res = await api
+      .post(`${this.CONTROLLER}/change-password`, payload)
+      .catch((error) => {
+        throw error;
+      });
+    return res.data;
+  }
+
+  async resetOtherUserPwd(requestId: string, newPassword: string) {
+    alert('came here')
+    const res = await api
+      .post(`${this.CONTROLLER}/reset-password`, { requestId, newPassword })
+      .catch((error) => {
+        throw error;
+      });
     return res.data;
   }
 }

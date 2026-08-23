@@ -5,11 +5,13 @@ import React, { useEffect, useState } from 'react'
 import Permissions from '../components/permissions'
 import { UserService } from '../services/user.service'
 import { useForm } from 'antd/es/form/Form'
+import type { Permission } from '../common/constants/permissions'
 
 const ManageSystemUsers = () => {
 
     const [isPermissionsOpen, setIsPermissionsOpen] = React.useState(false);
     const [systemUsers, setSystemUsers] = useState<any[]>([]);
+    const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>([]);
 
     const userServie = new UserService();
 
@@ -34,7 +36,7 @@ const ManageSystemUsers = () => {
                 return (
                     <Flex gap={10} justify='center'>
                         {/* <Button size='small' shape='circle' type='text'><FontAwesomeIcon icon={faPen} /></Button> */}
-                        <Button size='small' shape='circle' type='text' style={{ color: 'blue' }}><FontAwesomeIcon icon={faKey} /></Button>
+                        {/* <Button size='small' shape='circle' type='text' style={{ color: 'blue' }}><FontAwesomeIcon icon={faKey} /></Button> */}
                         <Button size='small' shape='circle' type='text' danger onClick={() => { handleSystemUserDelete(record?.id) }}><FontAwesomeIcon icon={faTrash} /></Button>
                     </Flex>
                 )
@@ -69,7 +71,7 @@ const ManageSystemUsers = () => {
     }
 
     const createNewUser = (data: any) => {
-        userServie.createNewSystemUser(data)
+        userServie.createNewSystemUser({...data, permissions: selectedPermissions})
         .then((data) => {
             form.resetFields();
         })
@@ -103,7 +105,7 @@ const ManageSystemUsers = () => {
                             </Flex>
                             <Flex justify='flex-end' gap={10} style={{ marginTop: 20 }}>
                                 <Button><FontAwesomeIcon icon={faEraser} />Clear</Button>
-                                <Button type='primary'><FontAwesomeIcon icon={faPlus} />Add User</Button>
+                                <Button htmlType='submit' type='primary'><FontAwesomeIcon icon={faPlus} />Add User</Button>
                             </Flex>
                         </div>
                     </Col>
@@ -114,7 +116,7 @@ const ManageSystemUsers = () => {
                     </Col>
                 </Row>
             </Form>
-            <Permissions onClose={() => { setIsPermissionsOpen(false) }} open={isPermissionsOpen} />
+            <Permissions selectedPermissions={[]} onClose={(selectedPermissions?: Permission[]) => { if (selectedPermissions) setSelectedPermissions(selectedPermissions); setIsPermissionsOpen(false) }} open={isPermissionsOpen} />
         </>
     )
 }
