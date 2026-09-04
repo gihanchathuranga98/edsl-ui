@@ -1,16 +1,12 @@
 import React, { useContext, useState } from 'react';
-import {
-    FileOutlined,
-    TeamOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Avatar, Layout, Menu, theme } from 'antd';
+import { Avatar, Layout, Menu, Modal, theme } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightFromBracket, faBuildingColumns, faCrosshairs, faDashboard, faDatabase, faFilePdf, faGavel, faKey, faLock, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRightFromBracket, faBuildingColumns, faCrosshairs, faDatabase, faFilePdf, faGavel, faKey, faLock, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faCashApp } from '@fortawesome/free-brands-svg-icons';
 import { useNavigate } from 'react-router';
 import { AuthContext } from '../contexts/auth.context';
+import { UserService } from '../services/user.service';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -53,15 +49,41 @@ const Sidenav = ({ children }: { children?: React.ReactNode }) => {
 
     const [collapsed, setCollapsed] = useState(false);
 
-    const {user} = useContext(AuthContext);
+    const { user, setUser, setPermissions, showAlert } = useContext(AuthContext);
+    const userService = new UserService();
     // sider width defaults in antd: width = 200, collapsedWidth = 80
     const siderWidth = collapsed ? 80 : 250;
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
-    const handleNavClick = (args) => {
-        navigate(`/${args.key}`);
+    const logout = async () => {
+        try {
+            await userService.logout();
+        } catch {
+            showAlert.error('Unable to complete logout on the server');
+        } finally {
+            localStorage.removeItem('token');
+            setUser(undefined);
+            setPermissions([]);
+            navigate('/', { replace: true });
+        }
+    };
+
+    const handleNavClick = ({ key }: { key: string }) => {
+        if (key !== 'logout') {
+            navigate(`/${key}`);
+            return;
+        }
+
+        Modal.confirm({
+            title: 'Confirm logout',
+            content: 'Are you sure you want to log out?',
+            okText: 'Logout',
+            okButtonProps: { danger: true },
+            cancelText: 'Cancel',
+            onOk: logout,
+        });
     };
 
     const getCurrentPath = () => {

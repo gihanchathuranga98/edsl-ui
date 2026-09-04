@@ -1,6 +1,6 @@
-import { Button, Col, Divider, Flex, Form, Input, Modal, Row, Select, Table, Tooltip } from 'antd'
+import { Button, Col, Divider, Flex, Form, Input, InputNumber, Row, Select, Table, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Sidenav from '../components/sidenav';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuildingCircleArrowRight, faEdit, faEraser, faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +15,7 @@ const ManageOfficers = () => {
     const [form] = useForm();
     const { showAlert } = useContext(AuthContext);
 
-    const [openAssignStation, setOpenAssignStation] = React.useState(false);
+    const [openAssignStation, setOpenAssignStation] = useState(false);
     const [designations, setDesignations] = useState<any[]>([]);
     const [stations, setStations] = useState<any[]>([]);
     const [officers, setOfficers] = useState<any[]>([]);
@@ -66,6 +66,16 @@ const ManageOfficers = () => {
             key: 'station',
         },
         {
+            title: 'Basic Salary (LKR)',
+            dataIndex: 'basicSalary',
+            key: 'basicSalary',
+            align: 'right' as const,
+            render: (value: number | string) => Number(value).toLocaleString('en-LK', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }),
+        },
+        {
             title: 'Action',
             key: 'action',
             render: (val, record) => {
@@ -102,7 +112,7 @@ const ManageOfficers = () => {
     }, [])
 
     const handleFormSubmit = (data: any) => {
-        userService.createOfficer({ code: data.officerNumber, name: data.officerName, stationId: data?.station, designationId: data.designation })
+        userService.createOfficer({ code: data.officerNumber, name: data.officerName, stationId: data?.station, designationId: data.designation, basicSalary: data.basicSalary })
             .then(data => {
                 form.resetFields();
                 showAlert.success('New officer has been created successfully')
@@ -114,27 +124,32 @@ const ManageOfficers = () => {
 
     return (
         <>
-            <AssignStation onStationChange={() => {Modal.destroyAll(); showAlert.success('Station has been changed successfully'); fetchAllOfficers();}} selectedOfficer={selectedOfficer} onClose={() => { setOpenAssignStation(false) }} open={openAssignStation} />
+            <AssignStation onStationChange={() => {showAlert.success('Station has been changed successfully'); fetchAllOfficers();}} selectedOfficer={selectedOfficer} onClose={() => { setOpenAssignStation(false) }} open={openAssignStation} />
             <Form onFinish={handleFormSubmit} form={form} layout='vertical'>
                 <Row gutter={[15, 15]}>
                     <Col span={6}>
-                        <Form.Item label="Officer Number" name="officerNumber">
+                        <Form.Item label="Officer Number" name="officerNumber" rules={[{ required: true, message: 'Officer number is required' }]}>
                             <Input />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label="Officer Full Name" name="officerName">
+                        <Form.Item label="Officer Full Name" name="officerName" rules={[{ required: true, message: 'Officer full name is required' }]}>
                             <Input />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label="Designation" name="designation">
+                        <Form.Item label="Designation" name="designation" rules={[{ required: true, message: 'Designation is required' }]}>
                             <Select options={designations.map(d => ({ value: d.id, label: d.designation }))} />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label="Station" name="station">
+                        <Form.Item label="Station" name="station" rules={[{ required: true, message: 'Station is required' }]}>
                             <Select options={stations.map(s => ({ value: s.id, label: `${s.code} - ${s.name}` }))} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item label="Basic Salary (LKR)" name="basicSalary" rules={[{ required: true, message: 'Basic salary is required' }]}>
+                            <InputNumber min={0} precision={2} style={{ width: '100%' }} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -144,7 +159,7 @@ const ManageOfficers = () => {
                 </Flex>
             </Form>
             <Divider />
-            <Table columns={columns} dataSource={officers.map(o => ({ id: o?.id, officerName: o?.name, officerNumber: o?.code, designation: o?.designation?.designation, station: `${o?.stations[0].station?.code} - ${o?.stations[0]?.station?.name}` }))} />
+            <Table columns={columns} dataSource={officers.map(o => ({ id: o?.id, officerName: o?.name, officerNumber: o?.code, designation: o?.designation?.designation, station: `${o?.stations[0].station?.code} - ${o?.stations[0]?.station?.name}`, basicSalary: o?.basicSalary }))} />
         </>
     )
 }

@@ -14,6 +14,11 @@ export class UserService {
     return res.data;
   }
 
+  async logout() {
+    const res = await api.post(`${this.CONTROLLER}/logout`);
+    return res.data;
+  }
+
   async recoverPassword(email: string) {
     const res = await api
       .post(`${this.CONTROLLER}/recover-password`, { email })
@@ -103,6 +108,16 @@ export class UserService {
       .catch((error) => {
         throw error;
       });
+    return res.data;
+  }
+
+  async getOfficerStationHistory(officerId: string) {
+    const res = await api
+      .get(`${this.CONTROLLER}/officer/${officerId}/station-history`)
+      .catch((error) => {
+        throw error;
+      });
+
     return res.data;
   }
 

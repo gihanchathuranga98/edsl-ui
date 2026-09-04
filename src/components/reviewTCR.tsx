@@ -3,8 +3,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Col, Flex, Row } from 'antd'
 import React from 'react'
 import { TcrStep } from '../pages/createTCR'
+import { useNavigate } from 'react-router'
 
 const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informantOfficers, detectingOfficeFund, informantFund, totalCaseAmount, prosecutingOfficers, prosecutingOfficerFund, otherOfficers, otherOfficerFund, nonParticipationOfficers, nonParticipantOfficerFund, handleTcrCreate }) => {
+    const navigate = useNavigate();
+
+    const submitTcr = async () => {
+        try {
+            await handleTcrCreate();
+            navigate('/manage-tcr');
+        } catch {
+            // The create page displays the request error.
+        }
+    }
     return (
         <>
             <Row style={{ marginTop: 20 }}>
@@ -214,7 +225,7 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                         }
                         <Flex gap={10} justify='end' style={{ marginTop: 20 }}>
                             <Button onClick={() => { setStep(TcrStep.OFFICER_DETAILS) }}><FontAwesomeIcon icon={faArrowLeft} />Back</Button>
-                            <Button type='primary' onClick={handleTcrCreate}><FontAwesomeIcon icon={faCheck} />Submit TCR</Button>
+                            <Button type='primary' onClick={submitTcr}><FontAwesomeIcon icon={faCheck} />Submit TCR</Button>
                         </Flex>
                     </div>
                 </Col>

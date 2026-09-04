@@ -17,6 +17,28 @@ const ReviewTcr = () => {
 
     const tcrService = new TcrService();
 
+    const calculateOfficerReward = (officers: any[] = [], roleFund: number | string = 0, officer: any) => {
+        const totalDesignationFunds = officers
+            .map(item => Number(item.designation?.fundShare))
+            .reduce((total, fund) => total + fund, 0);
+
+        if (!totalDesignationFunds) {
+            return 0;
+        }
+
+        return Number(roleFund) * Number(officer.designation?.fundShare) / totalDesignationFunds;
+    }
+
+    const getOfficerReward = (role: string, officers: any[] = [], roleFund: number | string = 0, officer: any) => {
+        const allocation = tcrDetails?.officerAllocations?.find((item: any) =>
+            item.role === role && item.officer?.id === officer.id,
+        );
+
+        return allocation
+            ? Number(allocation.payment)
+            : calculateOfficerReward(officers, roleFund, officer);
+    }
+
     useEffect(() => {
         if (params.tcr === undefined) {
             showAlert.error('TCR ID is required')
@@ -71,7 +93,10 @@ const ReviewTcr = () => {
                                 <div style={{ marginBottom: 5 }}><span style={{ fontWeight: 'bold' }}>Case No:</span> {tcrDetails?.tcrNo}</div>
                                 <div style={{ marginBottom: 5 }}><span style={{ fontWeight: 'bold' }}>Leading Station:</span> {tcrDetails?.stationName}</div>
                                 <div style={{ marginBottom: 5 }}><span style={{ fontWeight: 'bold' }}>Date of Incident:</span> {new Date(tcrDetails?.incidentDate).toLocaleDateString()}</div>
-                                <div><span style={{ fontWeight: 'bold' }}>Total Case Amount:</span> LKR {Number(tcrDetails?.totalCaseAmount).toFixed(2)}</div>
+                                <div style={{ marginBottom: tcrDetails?.status === 'APPROVED' ? 5 : 0 }}><span style={{ fontWeight: 'bold' }}>Total Case Amount:</span> LKR {Number(tcrDetails?.totalCaseAmount).toFixed(2)}</div>
+                                {tcrDetails?.status === 'APPROVED' && (
+                                    <div><span style={{ fontWeight: 'bold' }}>Approved By:</span> {tcrDetails?.approverName ?? 'Unknown user'}</div>
+                                )}
                                 <h3>Detecting Officer Details</h3>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
                                     <thead>
@@ -92,7 +117,7 @@ const ReviewTcr = () => {
                                                         <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.code}</td>
                                                         <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.name}</td>
                                                         <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation.designation}</td>
-                                                        <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(tcrDetails?.detectingOfficerFund) / tcrDetails.detectingOfficers?.length).toFixed(2)}</td>
+                                                        <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {getOfficerReward('DETECTING', tcrDetails?.detectingOfficers, tcrDetails?.detectingOfficerFund, officer).toFixed(2)}</td>
                                                     </tr>
                                                 )
 
@@ -125,7 +150,7 @@ const ReviewTcr = () => {
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.code}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.name}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(tcrDetails?.informantFund) / tcrDetails.informant?.length).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {getOfficerReward('INFORMANT', tcrDetails?.informant, tcrDetails?.informantFund, officer).toFixed(2)}</td>
                                                             </tr>
                                                         )
 
@@ -160,7 +185,7 @@ const ReviewTcr = () => {
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.code}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.name}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(tcrDetails?.prosecutingOfficerFund) / tcrDetails.prosecutingOfficers?.length).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {getOfficerReward('PROSECUTING', tcrDetails?.prosecutingOfficers, tcrDetails?.prosecutingOfficerFund, officer).toFixed(2)}</td>
                                                             </tr>
                                                         )
 
@@ -195,7 +220,7 @@ const ReviewTcr = () => {
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.code}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.name}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(tcrDetails?.participationOfficerFund) / tcrDetails.participationOfficers?.length).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {getOfficerReward('PARTICIPATION', tcrDetails?.participationOfficers, tcrDetails?.participationOfficerFund, officer).toFixed(2)}</td>
                                                             </tr>
                                                         )
 
@@ -225,13 +250,12 @@ const ReviewTcr = () => {
                                             <tbody>
                                                 {
                                                     tcrDetails?.others?.map((officer, index) => {
-                                                        const totalDesignationFunds = tcrDetails?.others?.map(o => o.designation?.fundShare).reduce((a: number, b: number) => a + b, 0);
                                                         return (
                                                             <tr key={index}>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.code}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.name}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(tcrDetails?.nonParticipationOfficerFund) * officer?.designation?.fundShare / totalDesignationFunds).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {getOfficerReward('NON_PARTICIPATION', tcrDetails?.others, tcrDetails?.nonParticipationOfficerFund, officer).toFixed(2)}</td>
                                                             </tr>
                                                         )
                                                     })

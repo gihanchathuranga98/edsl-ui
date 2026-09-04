@@ -86,20 +86,22 @@ const CreateTCR = () => {
         }
 
         if (tcr) {
-            tcrService.updateTcr(payload, tcr)
-                .then(data => {
-                    showAlert.success('TCR has been created successfully');
+            return tcrService.updateTcr(tcr, payload)
+                .then(() => {
+                    showAlert.success('TCR has been updated and resubmitted successfully');
                 })
                 .catch(error => {
-
+                    showAlert.error('Unable to save the TCR');
+                    throw error;
                 })
         } else {
-            tcrService.createTcr(payload)
-                .then(data => {
+            return tcrService.createTcr(payload)
+                .then(() => {
                     showAlert.success('TCR has been created successfully');
                 })
                 .catch(error => {
-
+                    showAlert.error('Unable to save the TCR');
+                    throw error;
                 })
         }
 
@@ -150,10 +152,10 @@ const CreateTCR = () => {
                         date: dayjs(data.incidentDate),
                         totalCaseAmount: data.totalCaseAmount,
                     })
-                    setDetectingOfficers([...data.detectingOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.detectingOfficerFund / data.detectingOfficers.length, isEditable: false } }), { isEditable: true }]);
-                    setInformantOfficers([...data.informant.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.informantFund / data?.informant.length, isEditable: false } }), { isEditable: true }]);
-                    setProsecutingOfficers([...data.prosecutingOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.prosecutingOfficerFund / data?.prosecutingOfficers.length, isEditable: false } }), { isEditable: true }]);
-                    setOtherOfficers([...data.participationOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.participationOfficerFund / data?.participationOfficers.length, isEditable: false } }), { isEditable: true }]);
+                    setDetectingOfficers([...data.detectingOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.detectingOfficerFund / data.detectingOfficers.length, fund: officer?.designation?.fundShare, isEditable: false } }), { isEditable: true }]);
+                    setInformantOfficers([...data.informant.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.informantFund / data?.informant.length, fund: officer?.designation?.fundShare, isEditable: false } }), { isEditable: true }]);
+                    setProsecutingOfficers([...data.prosecutingOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.prosecutingOfficerFund / data?.prosecutingOfficers.length, fund: officer?.designation?.fundShare, isEditable: false } }), { isEditable: true }]);
+                    setOtherOfficers([...data.participationOfficers.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.participationOfficerFund / data?.participationOfficers.length, fund: officer?.designation?.fundShare, isEditable: false } }), { isEditable: true }]);
                     setNonParticipationOfficers([...data.others.map((officer: any) => { return { station: `${officer.stations[0]?.station?.code} - ${officer.stations[0]?.station?.name}`, officerId: officer.id, officerNumber: officer.code, officerName: officer.name, designation: officer?.designation?.designation, reward: data?.nonParticipationOfficerFund, fund: officer?.designation?.fundShare, isEditable: false } }), { isEditable: true }]);
 
                     setInformantFund(data.informantFund)

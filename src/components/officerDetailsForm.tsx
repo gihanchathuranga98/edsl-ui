@@ -149,7 +149,12 @@ const OfficerDetailsForm = ({ setStep, officers, fundShares, totalCaseAmount, de
             key: 'reward',
             render: (value: any, record: any) => {
                 if (detectingOfficers.length > 0 && !record.isEditable) {
-                    return (totalCaseAmount * detectingOfficeFund / 100 / (detectingOfficers.length - 1)).toFixed(2);
+                    const totalDesignationFunds = detectingOfficers
+                        .filter(officer => !officer.isEditable)
+                        .map(officer => Number(officer?.fund))
+                        .reduce((total: number, fund: number) => total + fund, 0)
+
+                    return `${(Number(totalCaseAmount * detectingOfficeFund / 100) * record.fund / totalDesignationFunds).toFixed(2)}`;
                 } else {
                     return Number(totalCaseAmount * detectingOfficeFund / 100).toFixed(2);
                 }
