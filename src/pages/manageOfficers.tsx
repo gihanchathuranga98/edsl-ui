@@ -19,7 +19,15 @@ const ManageOfficers = () => {
     const [designations, setDesignations] = useState<any[]>([]);
     const [stations, setStations] = useState<any[]>([]);
     const [officers, setOfficers] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedOfficer, setSelectedOfficer] = useState<string>();
+
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const filteredOfficers = officers.filter(officer =>
+        [officer?.code, officer?.name].some(value =>
+            String(value ?? '').toLowerCase().includes(normalizedSearch)
+        )
+    );
 
     const userService = new UserService();
     const stationService = new StationService();
@@ -144,7 +152,7 @@ const ManageOfficers = () => {
                     </Col>
                     <Col span={6}>
                         <Form.Item label="Station" name="station" rules={[{ required: true, message: 'Station is required' }]}>
-                            <Select options={stations.map(s => ({ value: s.id, label: `${s.code} - ${s.name}` }))} />
+                            <Select showSearch={{ optionFilterProp: 'label' }} options={stations.map(s => ({ value: s.id, label: `${s.code} - ${s.name}` }))} />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
@@ -159,7 +167,15 @@ const ManageOfficers = () => {
                 </Flex>
             </Form>
             <Divider />
-            <Table columns={columns} dataSource={officers.map(o => ({ id: o?.id, officerName: o?.name, officerNumber: o?.code, designation: o?.designation?.designation, station: `${o?.stations[0].station?.code} - ${o?.stations[0]?.station?.name}`, basicSalary: o?.basicSalary }))} />
+            <Input
+                allowClear
+                aria-label="Search officers by code or name"
+                placeholder="Search officers by code or name"
+                value={searchTerm}
+                onChange={event => setSearchTerm(event.target.value)}
+                style={{ maxWidth: 400, marginBottom: 16 }}
+            />
+            <Table columns={columns} dataSource={filteredOfficers.map(o => ({ id: o?.id, officerName: o?.name, officerNumber: o?.code, designation: o?.designation?.designation, station: `${o?.stations[0].station?.code} - ${o?.stations[0]?.station?.name}`, basicSalary: o?.basicSalary }))} />
         </>
     )
 }

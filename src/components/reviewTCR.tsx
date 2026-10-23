@@ -8,6 +8,19 @@ import { useNavigate } from 'react-router'
 const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informantOfficers, detectingOfficeFund, informantFund, totalCaseAmount, prosecutingOfficers, prosecutingOfficerFund, otherOfficers, otherOfficerFund, nonParticipationOfficers, nonParticipantOfficerFund, handleTcrCreate }) => {
     const navigate = useNavigate();
 
+    const calculateOfficerReward = (
+        officer: { fund?: number | string },
+        categoryOfficers: { fund?: number | string; isEditable?: boolean }[],
+        categoryPercentage: number,
+    ) => {
+        const totalDesignationFunds = categoryOfficers
+            .filter(item => !item.isEditable)
+            .reduce((total, item) => total + Number(item.fund), 0);
+        const categoryFund = totalCaseAmount * categoryPercentage / 100;
+
+        return (categoryFund * Number(officer.fund) / totalDesignationFunds).toFixed(2);
+    }
+
     const submitTcr = async () => {
         try {
             await handleTcrCreate();
@@ -39,15 +52,13 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                             <tbody>
                                 {
                                     detectingOfficers.map((officer, index) => {
-                                        console.log('detecting officer ===', officer);
-                                        
                                         if (officer.officerNumber) {
                                             return (
                                                 <tr key={index}>
                                                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerNumber}</td>
                                                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerName}</td>
                                                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation}</td>
-                                                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {Number(officer.reward).toFixed(2)}</td>
+                                                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {calculateOfficerReward(officer, detectingOfficers, detectingOfficeFund)}</td>
                                                 </tr>
                                             )
                                         } else {
@@ -84,7 +95,7 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerNumber}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerName}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {Number(officer.reward).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {calculateOfficerReward(officer, informantOfficers, informantFund)}</td>
                                                             </tr>
                                                         )
                                                     } else {
@@ -124,7 +135,7 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerNumber}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerName}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {Number(officer.reward).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {calculateOfficerReward(officer, prosecutingOfficers, prosecutingOfficerFund)}</td>
                                                             </tr>
                                                         )
                                                     } else {
@@ -164,7 +175,7 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerNumber}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerName}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {Number(officer.reward).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {calculateOfficerReward(officer, otherOfficers, otherOfficerFund)}</td>
                                                             </tr>
                                                         )
                                                     } else {
@@ -198,14 +209,13 @@ const ReviewTCR = ({ caseDetails, setStep, stations, detectingOfficers, informan
                                         <tbody>
                                             {
                                                 nonParticipationOfficers.map((officer, index) => {
-                                                    const totalDesignationFunds = nonParticipationOfficers.filter(f => !f.isEditable).map(f => f.fund).reduce((a: number, b: number) => a + b, 0)
                                                     if (officer.officerNumber) {
                                                         return (
                                                             <tr key={index}>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerNumber}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.officerName}</td>
                                                                 <td style={{ border: '1px solid #ddd', padding: 8 }}>{officer.designation}</td>
-                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {(Number(totalCaseAmount * nonParticipantOfficerFund / 100) * officer.fund / totalDesignationFunds).toFixed(2)}</td>
+                                                                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>LKR {calculateOfficerReward(officer, nonParticipationOfficers, nonParticipantOfficerFund)}</td>
                                                             </tr>
                                                         )
                                                     } else {

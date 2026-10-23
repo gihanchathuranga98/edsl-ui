@@ -69,7 +69,7 @@ const AssignStation = ({ open, onClose, selectedOfficer, onStationChange }) => {
         <>
             <Drawer onClose={() => { form.resetFields(); onClose(); }} footer={<><Form form={form} onFinish={handleStationAssignment} layout='vertical'>
                 <Form.Item rules={[{required: true, message: 'Please select a station'}]} label={'Select New Station'} name={'station'}>
-                    <Select options={stations.map(s => ({label: `${s.code} - ${s.name}`, value: s.id}))} />
+                    <Select showSearch={{ optionFilterProp: 'label' }} options={stations.map(s => ({label: `${s.code} - ${s.name}`, value: s.id}))} />
                 </Form.Item>
                 <Flex gap={10} justify={'end'} style={{ marginBottom: 20 }}>
                     <Button onClick={() => { form.resetFields(); onClose(); }}>Cancel</Button>

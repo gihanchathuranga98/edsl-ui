@@ -42,7 +42,7 @@ const CaseDetailsForm = ({ caseDetails, setCaseDetails, stations }: { caseDetail
                                         name="leadingStation"
                                         rules={[{ required: true, message: 'Please input the leading station!' }]}
                                     >
-                                        <Select options={stations.map(s => ({ label: s.name, value: s.id }))} />
+                                        <Select showSearch={{ optionFilterProp: 'label' }} options={stations.map(s => ({ label: `${s.code} - ${s.name}`, value: s.id }))} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
