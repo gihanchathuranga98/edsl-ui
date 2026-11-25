@@ -2,6 +2,9 @@
 
 ## Docker
 
+`npm run build` bundles the app without TypeScript checking, including during
+Docker builds. Run `npm run typecheck` separately to check TypeScript errors.
+
 Run from the `edsl-ui` directory:
 
 ```bash
