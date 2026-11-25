@@ -1,5 +1,21 @@
 # React + TypeScript + Vite
 
+## Docker
+
+Run from the `edsl-ui` directory:
+
+```bash
+docker build -t edsl-ui .
+docker run --rm --name edsl-ui -p 5173:80 edsl-ui
+```
+
+Open `http://localhost:5173`. Nginx serves the built app and supports direct
+navigation to React routes. The UI currently calls `http://localhost:3000/api/v1/`,
+so publish the backend on port 3000. For remote deployments, update the API URL
+in `src/services/api.interceptor.ts` and the backend CORS origin in `src/main.ts`
+before building. The UI image excludes `.env` files; its static bundle does not
+read runtime container environment variables.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
